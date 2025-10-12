@@ -1,0 +1,12 @@
+/* styles.css */
+body {
+  font-family: system-ui, Arial, sans-serif;
+}
+
+#messageArea .alert {
+  margin-bottom: 1rem;
+}
+.btn-delete,
+.btn-edit {
+  margin-top: 1px;
+}
