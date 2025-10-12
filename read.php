@@ -15,7 +15,7 @@ if (!$res) {
 
 $data = [];
 while($row = mysqli_fetch_assoc($res)) {
-  $data += $row;
+  $data[] = $row;
 }
 
 echo json_encode(['success' => true, 'data' => $data]);
