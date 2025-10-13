@@ -111,12 +111,72 @@ document
     }
   });
 
-function onEditClick() {
-  console.log("Edit button is clicked");
+// When edit button clicked - show edit box and fill values
+function onEditClick(e) {
+  const id = e.currentTarget.dataset.id;
+  // find values in table rows
+  const tr = e.currentTarget.closest("tr");
+  const name = tr.cells[1].innerText;
+  const email = tr.cells[2].innerText;
+  const phone = tr.cells[3].innerText;
+
+  document.getElementById("edit-id").value = id;
+  document.getElementById("edit-name").value = name;
+  document.getElementById("edit-email").value = email;
+  document.getElementById("edit-phone").value = phone;
+
+  // show edit box form with their values
+  document.getElementById("editBox").classList.remove("d-none");
+
+  // scroll up the edit box for visibility
+  document.getElementById("editBox").scrollIntoView({ behavior: "smooth" });
+
+  // Edit form submit handler (update)
+  document
+    .getElementById("editForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const id = document.getElementById("edit-id").value;
+      const name = document.getElementById("edit-name").value.trim();
+      const email = document.getElementById("edit-email").value.trim();
+      const phone = document.getElementById("edit-phone").value.trim();
+
+      if (!id || !name || !email) {
+        showMessage("Invalid input", "warning");
+        return;
+      }
+
+      const fd = new URLSearchParams();
+      fd.append("id", id);
+      fd.append("name", name);
+      fd.append("email", email);
+      fd.append("phone", phone);
+
+      try {
+        const res = await fetch("update.php", { method: "POST", body: fd });
+        const json = await res.json();
+
+        if (!json.success) throw new Error(json.error || "Update failed");
+
+        showMessage("SUCCESS! Details updated.", "success");
+        document.getElementById("editBox").classList.add("d-none");
+
+        fetchUsers();
+      } catch (err) {
+        console.error("update error:".err);
+        showMessage("update failed: " + err.message, "danger");
+      }
+    });
 }
+
+// Edit form submit handler
 async function onDeleteClick(e) {
   if (!confirm("Delete this user?")) return;
   const id = e.currentTarget.dataset.id;
+  // const tr = e.currentTarget.closest("tr");
+  // console.log(tr);
+  // const name = (tr.cells[1].innerText = "hh");
+
   const fd = new URLSearchParams();
   fd.append("id", id);
 
