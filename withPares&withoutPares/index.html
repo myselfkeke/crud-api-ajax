@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button class="withP">with ()</button>
+    <button class="withoutP">withhout ()</button>
+
+    <script>
+      function checkNumber() {
+        alert("checkNUmber func is running.");
+      }
+
+      document.getElementsByClassName("withP")[0].onclick = checkNumber();
+      document.getElementsByClassName("withoutP")[0].onclick = checkNumber;
+    </script>
+  </body>
+</html>

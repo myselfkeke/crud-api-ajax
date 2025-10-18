@@ -3,7 +3,7 @@
 
 require 'db.php';
 
-$q = "SELECT id, name, email, phone, created_at FROM users ORDER BY id DESC";
+$q = "SELECT id, name, email, phone, resume_path, created_at FROM users ORDER BY id DESC";
 
 $res = mysqli_query($conn, $q);
 
@@ -15,6 +15,7 @@ if (!$res) {
 
 $data = [];
 while($row = mysqli_fetch_assoc($res)) {
+  $row['resume_path'] = $row['resume_path'] ? $row['resume_path'] : '';
   $data[] = $row;
 }
 

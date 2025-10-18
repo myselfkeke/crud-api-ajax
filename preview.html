@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Preview Document</title>
+  </head>
+  <body>
+    <h2>Resume Preview</h2>
+    <iframe id="docFrame" width="100%" height="600"></iframe>
+
+    <script>
+      const fileURL = sessionStorage.getItem("previewFileURL");
+      if (fileURL) {
+        document.getElementById("docFrame").src = fileURL;
+      } else {
+        document.body.innerHTML = "<p>No document to preview.</p>";
+      }
+    </script>
+  </body>
+</html>

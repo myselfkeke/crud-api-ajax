@@ -1,6 +1,7 @@
 /* styles.css */
 body {
   font-family: system-ui, Arial, sans-serif;
+  padding: 0 5px 0 5px;
 }
 
 #messageArea .alert {
