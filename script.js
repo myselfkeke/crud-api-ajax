@@ -59,7 +59,8 @@ function renderTable(users) {
       <td style="text-align: center;">
         <button 
          class="btn btn-sm btn-outline-primary btn-view" 
-           data-path="${user.resume_path}" 
+          data-path="${user.resume_path}" 
+          data-id="${user.id}"
          title="View Resume">
          <i class="bi bi-eye"></i> View
         </button>
@@ -92,25 +93,24 @@ document.getElementById("addForm").addEventListener("submit", async (e) => {
   const resume = document.getElementById("resume").files[0];
   console.log(resume);
 
-  // const resumeFile = resumeInput.files && resumeInput.files[0]; // undefined if no file chosen
-
   if (!name || !email) return showMessage("Name and Email required", "warning");
 
   const fd = new FormData();
   fd.append("name", name);
+  // write the code to validate email on the backend , which once failed it shows "Invalid email id" message
   fd.append("email", email);
   fd.append("phone", phone);
   fd.append("resume", resume);
 
   try {
     const res = await fetch("create.php", { method: "POST", body: fd });
-    console.log(res);
 
+    // console.log(res);
     // const text = await res.text();
     // console.log("rew response from pho is " + text);
 
     const json = await res.json();
-    console.log(json);
+    // console.log(json);
 
     if (!json.success) throw new Error(json.error || "Failed to add user");
 
@@ -123,8 +123,7 @@ document.getElementById("addForm").addEventListener("submit", async (e) => {
   }
 });
 
-// ===================== VIEW  RESUME BUTTON (FROM FORM) =====================
-// ===================== RESUME PREVIEW HANDLING =====================
+// ===================== RESUME PREVIEW HANDLING (FROM FORM) =====================
 
 // Select elements
 const resumeInput = document.getElementById("resume");
@@ -133,30 +132,27 @@ const previewBtn = document.querySelector(".btn-view-disabled");
 // When file input changes
 resumeInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
-  console.log(file);
 
   if (file) {
     // Enable preview button
     previewBtn.disabled = false;
-    previewBtn.classList.remove("btn-view-disabled");
 
     // Optional: Change tooltip title dynamically
     previewBtn.setAttribute("title", `Preview:(${file.name})`);
     previewBtn.setAttribute("data-bs-original-title", `Preview: ${file.name}`);
 
     // Store selected file temporarily (for next page use)
-    sessionStorage.setItem("previewFileName", file.name);
+    // sessionStorage.setItem("previewFileName", file.name);
 
     // Create a blob URL for previewing
     const fileURL = URL.createObjectURL(file);
     sessionStorage.setItem("previewFileURL", fileURL);
 
     // Optional: change button text
-    previewBtn.innerHTML = `<i class="bi bi-eye"></i> Preview (${file.name})`;
+    previewBtn.innerHTML = `<i class="bi bi-eye-fill"></i> View (${file.name})`;
   } else {
     // Reset if no file chosen
     previewBtn.disabled = true;
-    previewBtn.classList.add("btn-view-disabled");
     previewBtn.innerHTML = `<i class="bi bi-eye"></i> Preview`;
     sessionStorage.removeItem("previewFileURL");
   }
@@ -193,17 +189,20 @@ document
   .querySelector("#usersTable tbody")
   .addEventListener("click", async function (e) {
     const tr = e.target.closest("tr");
+
     if (!tr) return;
 
     const editBtn = e.target.closest(".btn-edit");
     const saveBtn = e.target.closest(".btn-save");
     const deleteBtn = e.target.closest(".btn-delete");
     const cancelBtn = e.target.closest(".btn-cancel");
+    const changeFileBtnClicked = e.target.closest(".btn-change-file");
 
     // --- EDIT MODE ---
     if (editBtn) {
-      const id = editBtn.dataset.id;
+      // const id = editBtn.dataset.id;
       const deleteBtn = tr.querySelector(".btn-delete"); // ✅ Get the delete button in that row
+      const viewBtn = tr.querySelector(".btn-view"); // ✅ Get the view button in that row
       const name = tr.cells[1].innerText;
       const email = tr.cells[2].innerText;
       const phone = tr.cells[3].innerText;
@@ -223,8 +222,62 @@ document
       deleteBtn.classList.replace("btn-danger", "btn-warning");
       deleteBtn.classList.replace("btn-delete", "btn-cancel");
       deleteBtn.title = "Cancel";
+
+      viewBtn.innerHTML = `<i class="bi bi-eye-fill"></i> View Previous`;
+      viewBtn.title = "View Current";
+
+      // add change file button
+      const changeFileBtnClicked = document.createElement("button");
+      changeFileBtnClicked.className =
+        "btn btn-sm btn-outline-dark btn-change-file";
+      changeFileBtnClicked.innerHTML = `<i class="bi bi-arrow-up-circle-fill"></i> Change File`;
+      tr.cells[4].appendChild(changeFileBtnClicked);
     }
 
+    // --- CHANGE FILE  ---
+    if (changeFileBtnClicked) {
+      // 1️⃣ Create a hidden file input dynamically
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = ".pdf, .doc, .docx, .png, .jpg, .jpeg";
+      fileInput.style.display = "none";
+      document.body.appendChild(fileInput);
+
+      // 2️⃣ When user selects a file
+      fileInput.addEventListener("change", (ev) => {
+        const file = ev.target.files[0];
+        if (!file) return;
+
+        // Store it temporarily in the row element for saving later
+        tr._newFile = file;
+
+        // Update the UI
+        changeFileBtnClicked.innerHTML = `<i class="bi bi-check-circle"></i> File Selected`;
+        changeFileBtnClicked.classList.replace(
+          "btn-outline-dark",
+          "btn-outline-success"
+        );
+
+        // Add (or update) a temporary "View New" button
+        let viewNewBtn = tr.querySelector(".btn-view-new");
+        if (!viewNewBtn) {
+          viewNewBtn = document.createElement("button");
+          viewNewBtn.className =
+            "btn btn-sm btn-outline-dark ms-1 btn-view-new";
+          viewNewBtn.innerHTML = `<i class="bi bi-eye-fill"></i> View New`;
+          changeFileBtnClicked.insertAdjacentElement("afterend", viewNewBtn);
+        }
+
+        // Set up preview for the selected file
+        const fileURL = URL.createObjectURL(file);
+        viewNewBtn.onclick = () => {
+          window.open(fileURL, "_blank");
+        };
+      });
+
+      //  Trigger file picker click
+      fileInput.click();
+    }
     // --- SAVE MODE ---
     if (saveBtn) {
       const id = saveBtn.dataset.id;
@@ -234,7 +287,18 @@ document
 
       if (!name || !email) return showMessage("Invalid input", "warning");
 
-      const fd = new URLSearchParams({ id, name, email, phone });
+      const fd = new FormData();
+      fd.append("id", id);
+      fd.append("name", name);
+      fd.append("email", email);
+      fd.append("phone", phone);
+
+      if (tr._newFile) {
+        console.log(tr._newFile);
+
+        fd.append("resume", tr._newFile);
+      }
+      console.log(fd);
 
       try {
         const res = await fetch("update.php", { method: "POST", body: fd });
@@ -248,16 +312,28 @@ document
         tr.cells[2].innerText = email;
         tr.cells[3].innerText = phone;
 
-        saveBtn.innerHTML = `<i class="bi bi-pencil-square"></i> Save`;
+        saveBtn.innerHTML = `<i class="bi bi-pencil-square"></i> Edit`;
         saveBtn.classList.replace("btn-success", "btn-primary");
         saveBtn.classList.replace("btn-save", "btn-edit");
         saveBtn.title = "Edit";
 
         const cancelButton = tr.querySelector(".btn-cancel");
-        cancelButton.innerHTML = `<i class="bi bi-trash"></i> Cancel`;
+        cancelButton.innerHTML = `<i class="bi bi-trash"></i> Delete`;
         cancelButton.classList.replace("btn-warning", "btn-danger");
         cancelButton.classList.replace("btn-cancel", "btn-delete");
         cancelButton.title = "Delete";
+
+        const viewCurrentBtn = tr.querySelector(".btn-view");
+        viewCurrentBtn.innerHTML = `<i class="bi bi-eye"></i> View`;
+        viewCurrentBtn.title = "View Resume";
+
+        const changeFileBtn = tr.querySelector(".btn-change-file");
+        changeFileBtn.remove();
+
+        const viewNewBtn = tr.querySelector(".btn-view-new");
+        viewNewBtn.remove();
+
+        fetchUsers();
       } catch (err) {
         console.error("update error:", err);
         showMessage("Update failed: " + err.message, "danger");
@@ -293,15 +369,3 @@ document
 
 // ===================== INITIAL LOAD =====================
 fetchUsers();
-
-/*
-alternate method to insert view button on resume column
-
- <td>${
-        user.resume_path
-          ? `<a href="${user.resume_path}" target="_blank">
-            <button class="btn btn-warning"><i class="bi bi-eye"> View</i></button>
-          </a>`
-          : ""
-      }</td>
-*/

@@ -65,12 +65,12 @@
                   <div class="row align-items-center mb-2">
                     <!-- Label -->
                     <div class="col-md-4 text-end">
-                      <label for="formFile" class="form-label mb-0 fw-bold">Upload Resume</label>
+                      <label for="resume" class="form-label mb-0 fw-bold">Upload Resume</label>
                     </div>
 
                     <!-- File input -->
                     <div class="col-md-4">
-                      <input class="form-control" type="file" id="resume" name="resume" accept=".pdf, .doc, .docx">
+                      <input class="form-control" type="file" id="resume" name="resume" accept=".pdf, .doc, .docx, .jpeg, .png, .jpg">
                     </div>
                     
                     <div class="col-md-4" style="opacity: 0.9;">
@@ -122,7 +122,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
-                <th>Resume</th>
+                <th style="text-align: center;">Resume</th>
                 <th style="text-align: center;">Actions</th>
               </tr>
             </thead>
@@ -133,48 +133,6 @@
         </div>
       </div>
 
-      <!-- Edit box show when edit button is clicked -->
-      <div id="editBox" class="card mt3 d-none mTop">
-        <div class="card-body">
-          <h5>Edit Users</h5>
-          <form id="editForm">
-            <input type="hidden" name="id" id="edit-id" />
-            <div class="row g-2">
-              <div class="col-md-4">
-                <input
-                  type="text"
-                  name="name"
-                  id="edit-name"
-                  class="form-control"
-                  placeholder="Name"
-                  required
-                  />
-                </div>
-                <div class="col-md-4">
-                  <input
-                  type="email"
-                  name="email"
-                  id="edit-email"
-                  class="form-control"
-                  placeholder="Email"
-                  required
-                  />
-                </div>
-                <div class="col-md-3">
-                  <input
-                  type="text"
-                  name="phone"
-                  id="edit-phone"
-                  class="form-control"
-                  placeholder="Phone"
-                />
-              </div>
-              <div class="col-md-1 d-grid"><button class="btn btn-success" title="Save" type="submit"><i class="bi bi-check-circle"></i></button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
              <!-- bootstrap tool tip -->
        <!-- tried fancy bootstrap tool tip but didn't worked -->
     <script src="script.js"></script>
